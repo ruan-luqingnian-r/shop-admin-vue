@@ -7,7 +7,7 @@
         <img src="../assets/logo.png" alt="公司logo">
       </div>
       <!--登陆表单区域-->
-      <el-form :model="loginForm" :rules="loginFormRules" label-width="0px" class="login_form">
+      <el-form ref="loginFormRef" :model="loginForm" :rules="loginFormRules" label-width="0px" class="login_form">
         <!--用户名-->
         <el-form-item prop="userName">
           用户名：
@@ -29,9 +29,9 @@
 
         <el-row class="bus">
           <!--登陆-->
-          <el-button type="primary" round>登录</el-button>
+          <el-button @click="login" type="primary" round>登录</el-button>
           <!--刷新-->
-          <el-button round>重置</el-button>
+          <el-button @click="resetLoginForm" round>重置</el-button>
         </el-row>
 
       </el-form>
@@ -48,6 +48,7 @@ export default {
         userName:'',
         passWord:''
       },
+      //绑定输入框验证规则
       loginFormRules:{
         userName: [
           { required: true, message: '账号不能为空', trigger: 'blur' }
@@ -57,6 +58,33 @@ export default {
         ]
       }
     };
+  },
+  methods:{
+    //点击重置按钮
+    resetLoginForm(){
+      //console.log(this)
+      this.$refs.loginFormRef.resetFields()
+    },
+    login(){
+      // this.$refs.loginFormRef.validate(valid =>{
+      //   //console.log(valid);
+      //   if (!valid) return;
+      //   const result = this.$http.post('/api/admin/adminUser/login',this.loginForm);
+      //   console.log(result);
+      // });
+      this.$axios.post('/api/admin/adminUser/login',this.loginForm)
+        .then(res => {
+          if (res.data.code !== 0) return this.$message.error(res.data.msg)
+          this.$message.success('登录成功')
+          //保存token信息
+          window.sessionStorage.setItem("token",res.data.data)
+          //跳转到登录首页
+          this.$router.push("/home")
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    }
   }
 }
 </script>
