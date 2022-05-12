@@ -173,33 +173,33 @@ export default {
         callback();
       }
     };
-    return{
-      //获取用户列表参数
-      queryInfo:{
-        pageNum:1,
-        pageSize:10,
-        likeName:''
+    return {
+      // 获取用户列表参数
+      queryInfo: {
+        pageNum: 1,
+        pageSize: 10,
+        likeName: ''
       },
-      userList:[],
-      total:0,
-      selectionUserList:{
-        userIdList:[]
+      userList: [],
+      total: 0,
+      selectionUserList: {
+        userIdList: []
       },
-      //添加用户的对话框的显示和隐藏
-      addDialogVisible:false,
-      //添加用户表单数据
-      addFrom:{
-        headImg: "https://ruan-1024shop-img.oss-cn-beijing.aliyuncs.com/user/avatar/2021/07/28/125bbb6c1c804028bcbe474b211b2684.jpg",
+      // 添加用户的对话框的显示和隐藏
+      addDialogVisible: false,
+      // 添加用户表单数据
+      addFrom: {
+        headImg: 'https://ruan-1024shop-img.oss-cn-beijing.aliyuncs.com/user/avatar/2021/07/28/125bbb6c1c804028bcbe474b211b2684.jpg',
         mail: '',
         name: '',
         pwd: '',
-        pwdAgain:'',
+        pwdAgain: '',
         sex: 0,
-        slogan: "人生需要动态规划，学习需要贪心算法"
+        slogan: '人生需要动态规划，学习需要贪心算法'
       },
-      //添加用户表单数据
-      addFromRules:{
-        name:[
+      // 添加用户表单数据
+      addFromRules: {
+        name: [
           { required: true, message: '请输入用户名', trigger: 'blur' },
           { min: 1, max: 10, message: '长度在 1 到 10 个字符', trigger: 'blur' }
         ],
@@ -211,27 +211,26 @@ export default {
         mail: [
           { required: true, message: '请输入邮箱账号', trigger: 'blur' },
         ],
-        pwdAgain:[
+        pwdAgain: [
           { required: true, message: '请再次输入密码', trigger: 'blur' },
           { min: 0, max: 12, message: '长度在 0 到 12 个字符', trigger: 'blur' },
           { validator: validatePass2, trigger: 'blur' }
         ]
       }
-    };
+    }
   },
 
   created () {
     this.getUserList()
   },
-  methods:{
-    getUserList(){
+  methods: {
+    getUserList () {
       this.$axios.get('/api/admin/adminUser/user-list', {
-        params:this.queryInfo
-      }).then(res =>{
+        params: this.queryInfo
+      }).then(res => {
         if (res.data.code !== 0) return this.$message.error(res.data.msg)
-        this.userList = res.data.data.current_data
+        this.userList = res.data.data.current_data,
         this.total = res.data.data.total_record
-
       })
     },
     handleSelectionChange(val) {
