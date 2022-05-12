@@ -72,18 +72,21 @@ export default {
       //   const result = this.$http.post('/api/admin/adminUser/login',this.loginForm);
       //   console.log(result);
       // });
-      this.$axios.post('/api/admin/adminUser/login',this.loginForm)
-        .then(res => {
-          if (res.data.code !== 0) return this.$message.error(res.data.msg)
-          this.$message.success('登录成功')
-          //保存token信息
-          window.sessionStorage.setItem("token",res.data.data)
-          //跳转到登录首页
-          this.$router.push("/home")
-        })
-        .catch(err => {
-          console.log(err)
-        })
+      this.$refs.loginFormRef.validate( valid =>{
+        if (!valid) return this.$message.error("请输入账号")
+        this.$axios.post('/api/admin/adminUser/login',this.loginForm)
+          .then(res => {
+            if (res.data.code !== 0) return this.$message.error(res.data.msg)
+            this.$message.success('登录成功')
+            //保存token信息
+            window.sessionStorage.setItem("token",res.data.data)
+            //跳转到登录首页
+            this.$router.push("/home")
+          })
+          .catch(err => {
+            console.log(err)
+          })
+      })
     }
   }
 }

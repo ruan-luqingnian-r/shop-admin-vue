@@ -90,10 +90,10 @@
         <el-table-column
           fixed="right"
           label="操作"
-          width="100">
+          width="200">
           <template slot-scope="scope">
-            <el-button @click="handleClick(scope.row)" type="text" size="small">查看</el-button>
-            <el-button type="text" size="small">编辑</el-button>
+            <el-button @click="handleClick(scope.row)" type="text" size="small">查看订单</el-button>
+            <el-button type="text" size="small" @click="showEditDialog(scope.row)">修改积分</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -107,11 +107,12 @@
       layout="total, sizes, prev, pager, next, jumper"
       :total="total">
     </el-pagination>
-      <!--弹出框-->
+      <!--新增用户弹出框-->
       <el-dialog
         title="添加新用户"
         :visible.sync="addDialogVisible"
-        width="30%">
+        width="30%"
+        @close="addDialogClosed">
         <!--内容主体区-->
         <span>
           <el-form :model="addFrom" :rules="addFromRules" ref="addFromRef" label-width="100px" class="demo-ruleForm">
@@ -123,6 +124,16 @@
             <el-form-item label="账号" prop="mail">
               <el-input v-model="addFrom.mail"></el-input>
             </el-form-item>
+          </el-form>
+
+
+          <el-form :model="addFrom" :rules="addFromRules" ref="addFromRef" label-width="100px" class="demo-ruleForm">
+            <el-form-item label="性别" prop="sex">
+              <el-radio-group v-model="addFrom.sex">
+               <el-radio label="1">男</el-radio>
+               <el-radio label="0">女</el-radio>
+             </el-radio-group>
+          </el-form-item>
           </el-form>
 
           <el-form :model="addFrom" :rules="addFromRules" ref="addFromRef" label-width="100px" class="demo-ruleForm">
@@ -141,8 +152,31 @@
           <!--底部区域-->
           <span slot="footer" class="dialog-footer">
             <el-button @click="addDialogVisible = false">取 消</el-button>
-            <el-button type="primary" @click="addDialogVisible = false">确 定</el-button>
+            <el-button type="primary" @click="addUser">确 定</el-button>
           </span>
+      </el-dialog>
+      <!--修改用户积分弹出框-->
+      <el-dialog
+        title="修改用户积分"
+        :visible.sync="updateUserPointsPopup"
+        width="30%" @close="pointFromClose">
+        <!--内容主体区-->
+        <el-form :model="pointFrom" :rules="userPointsRules" ref="userPointsRef" label-width="100px" class="demo-ruleForm">
+          <el-form-item label="用户名" prop="name">
+            <el-input v-model="pointFrom.name" disabled></el-input>
+          </el-form-item>
+        </el-form>
+        <el-form :model="pointFrom" :rules="userPointsRules" ref="userPointsRef" label-width="100px" class="demo-ruleForm">
+          <el-form-item label="积分变动" prop="point">
+            <el-input v-model="pointFrom.point"></el-input>
+          </el-form-item>
+        </el-form>
+
+        <!--底部区域-->
+        <span slot="footer" class="dialog-footer">
+            <el-button @click="updateUserPointsPopup = false">取 消</el-button>
+            <el-button type="primary" @click="updateUserPoints">确 定</el-button>
+        </span>
       </el-dialog>
 
     </el-card>
@@ -187,6 +221,8 @@ export default {
       },
       // 添加用户的对话框的显示和隐藏
       addDialogVisible: false,
+      // 修改用户积分的对话框的显示和隐藏
+      updateUserPointsPopup:false,
       // 添加用户表单数据
       addFrom: {
         headImg: 'https://ruan-1024shop-img.oss-cn-beijing.aliyuncs.com/user/avatar/2021/07/28/125bbb6c1c804028bcbe474b211b2684.jpg',
@@ -197,7 +233,7 @@ export default {
         sex: 0,
         slogan: '人生需要动态规划，学习需要贪心算法'
       },
-      // 添加用户表单数据
+      // 添加用户表单规则
       addFromRules: {
         name: [
           { required: true, message: '请输入用户名', trigger: 'blur' },
@@ -215,7 +251,21 @@ export default {
           { required: true, message: '请再次输入密码', trigger: 'blur' },
           { min: 0, max: 12, message: '长度在 0 到 12 个字符', trigger: 'blur' },
           { validator: validatePass2, trigger: 'blur' }
+        ],
+        sex: [
+          { required: true, message: '请选择性别', trigger: 'change' }
         ]
+      },
+      //积分变动表单规则
+      userPointsRules:{
+        points:[
+          { required: true, message: '请输入积分', trigger: 'blur' },
+        ]
+      },
+      pointFrom:{
+        userId:0,
+        name:'',
+        point:0
       }
     }
   },
@@ -314,6 +364,46 @@ export default {
         if (res.data.code !== 0) return this.$message.error(res.data.msg)
         this.userList = res.data.data.current_data
         this.total = res.data.data.total_record
+      })
+    },
+    // 监听添加用户对话框的关闭事件
+    addDialogClosed(){
+      this.$refs.addFromRef.resetFields()
+    },
+    //新增用户
+    addUser(){
+      this.$refs.addFromRef.validate(valid =>{
+        if (!valid) return this.$message.error("请完善表单内容")
+        //校验通过可发起请求
+        this.$axios.post("/api/user/register",this.addFrom).then(res=>{
+          if (res.data.code !== 0) return this.$message.error(res.data.msg)
+          this.$message.success("添加用户成功")
+          this.getUserList()
+          this.addDialogVisible = false
+        })
+      })
+    },
+    //展示修改用户积分弹出框
+    showEditDialog(rowInfo){
+      this.updateUserPointsPopup = true;
+      this.pointFrom.name = rowInfo.name
+      this.pointFrom.userId = rowInfo.id
+    },
+    //监听修改用户积分对话框的关闭事件
+    pointFromClose(){
+      this.$refs.userPointsRef.resetFields()
+    },
+    //修改用户积分
+    updateUserPoints(){
+      this.$refs.userPointsRef.validate(valid=>{
+        if (!valid) return this.$message.error("请输入要变动的积分数")
+        this.$axios.get("api/admin/adminUser/modify-user-points?userId="+this.pointFrom.userId+"&points="+this.pointFrom.point)
+          .then(res=>{
+            if (res.data.code !== 0) return this.$message.error(res.data.msg)
+            this.$message.success("积分变动成功")
+            this.getUserList()
+            this.updateUserPointsPopup = false;
+          })
       })
     }
   }
