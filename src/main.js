@@ -11,6 +11,12 @@ Vue.prototype.$axios = axios;
 Vue.prototype.$http = axios
 Vue.config.productionTip = false
 
+axios.interceptors.request.use(config =>{
+  config.headers.Authorization = window.sessionStorage.getItem("token")
+  // 固定写法必须有返回值
+  return config;
+})
+
 new Vue({
   router,
   render: h => h(App)
