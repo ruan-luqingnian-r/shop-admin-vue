@@ -27,4 +27,7 @@ html,body,#app{
     float: left;
     padding: 0;
 }
+.el-tree{
+    margin-top: 10px;
+}
 

@@ -61,16 +61,16 @@ export default {
             id:1011,authName:"用户列表",path:"user",
           }]},
         {id:102,authName:"网页配置",path:"front",children:[{
-            id:1021,authName:"轮播图",path:"front",
+            id:1021,authName:"轮播图",path:"front/banner",
           },{
             id:1022,authName:"新品上线",path:"front",
           },{
             id:1023,authName:"热卖商品",path:"front",
           }]},
         {id:103,authName:"商品管理",path:"goods",children:[{
-            id:1031,authName:"商品列表",path:"goods",
+            id:1031,authName:"商品列表",path:"goods/product",
           },{
-            id:1032,authName:"分类参数",path:"goods",
+            id:1032,authName:"分类参数",path:"goods/category",
           },{
             id:1033,authName:"商品分类",path:"goods",
           }]},

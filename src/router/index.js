@@ -4,6 +4,9 @@ import Login from '@/components/Login'
 import Home from '@/components/Home'
 import Welcome from '@/components/Welcome'
 import UserList from '@/components/user/UserList'
+import BannnerList from '@/components/front/BannnerList'
+import ProductCategoryList from '@/components/product/ProductCategoryList'
+import ProductList from '@/components/product/ProductList'
 
 
 Vue.use(VueRouter)
@@ -16,7 +19,10 @@ const routes = [
     redirect: "/welcome",
     children:[
       {path:"/welcome", component:Welcome},
-      {path: "/user",component: UserList}
+      {path: "/user",component: UserList},
+      {path: "/front/banner",component: BannnerList},
+      {path: "/goods/category",component: ProductCategoryList},
+      {path: "/goods/product",component: ProductList}
     ]
   }
 ]
