@@ -23,11 +23,11 @@
           </el-tooltip>
 
           <el-tooltip  class="item" effect="dark" content="下架商品" placement="bottom" :enterable="false">
-            <el-button type="danger" circle icon="el-icon-delete"></el-button>
+            <el-button type="danger" circle icon="el-icon-delete" @click="notShelfProduct"></el-button>
           </el-tooltip>
 
           <el-tooltip  class="item" effect="dark" content="上架商品" placement="bottom" :enterable="false">
-            <el-button type="success" icon="el-icon-check" circle></el-button>
+            <el-button type="success" icon="el-icon-check" circle @click="onShelfProduct"></el-button>
           </el-tooltip>
         </el-col>
       </el-row>
@@ -40,7 +40,7 @@
         border
         stripe
         style="width: 100%"
-        >
+        @selection-change="handleSelectionChange">
         <el-table-column
           type="selection"
           width="55">
@@ -48,7 +48,7 @@
         <el-table-column
           prop="title"
           label="商品名"
-          width="150">
+          width="130">
         </el-table-column>
         <el-table-column
           prop="coverImg"
@@ -61,31 +61,31 @@
         <el-table-column
           prop="detail"
           label="简介"
-          width="120">
-
+          width="170">
         </el-table-column>
         <el-table-column
           prop="primaryClassification"
           label="一级分类"
-          width="150">
-          <template slot-scope="scope">
-            <el-tag type="warning" v-if="scope.row.primaryClassification === null">待分类</el-tag>
-          </template>
+          width="100">
         </el-table-column>
         <el-table-column
           prop="secondClassification"
           label="二级分类"
-          width="150">
-          <template slot-scope="scope">
-            <el-tag type="warning" v-if="scope.row.secondClassification === null">待分类</el-tag>
-          </template>
+          width="100">
+
         </el-table-column>
         <el-table-column
           prop="thirdPrimaryClassification"
           label="三级分类"
-          width="150">
+          width="100">
+        </el-table-column>
+        <el-table-column
+          prop="state"
+          label="商品状态"
+          width="100">
           <template slot-scope="scope">
-            <el-tag type="warning" v-if="scope.row.thirdPrimaryClassification === null">待分类</el-tag>
+            <el-tag type="info" v-if="scope.row.state === 1">未上架</el-tag>
+            <el-tag type="success" v-if="scope.row.state === 0">已上架</el-tag>
           </template>
         </el-table-column>
         <el-table-column
@@ -109,13 +109,17 @@
           label="操作"
           width="200">
           <template slot-scope="scope">
-            <el-button @click="handleClick(scope.row)" type="text" size="small">查看订单</el-button>
-            <el-button type="text" size="small" @click="showEditDialog(scope.row)">修改积分</el-button>
+            <el-button @click="handleClick(scope.row)" type="text" size="small">信息修改</el-button>
+            <el-button v-if="scope.row.primaryClassification === null
+            || scope.row.secondClassification === null
+            || scope.row.thirdPrimaryClassification  === null" type="text" size="small" @click="showEditDialog(scope.row)">商品分类</el-button>
+            <el-button @click="deleteProduct(scope.row)" style="color: #ff4400" type="text" size="small">删除商品</el-button>
+
           </template>
         </el-table-column>
       </el-table>
       <!--分页-->
-      <<el-pagination
+      <el-pagination
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
       :current-page="queryInfo.pageNum"
@@ -131,7 +135,7 @@
         title="添加新商品"
         :visible.sync="addDialogVisible"
         width="30%"
-        :before-close="handleClose" :close="addDialogClosed">
+        :before-close="handleClose" ref="addProductRef">
         <!--内容主体区-->
         <span>
           <el-form :model="addProductFrom" :rules="addProductRules" ref="addProductRef" label-width="100px" class="demo-ruleForm">
@@ -188,6 +192,84 @@
             <el-button type="primary" @click="addProduct">确 定</el-button>
           </span>
       </el-dialog>
+
+      <!--商品分类弹出框-->
+      <el-dialog
+        title="添加商品分类"
+        :visible.sync="categoryVisible"
+        width="30%"
+        :before-close="categoryVisibleClose" ref="addProductRef">
+
+        <div class="block">
+          <el-form :model="product"  label-width="100px" class="demo-ruleForm">
+            <el-form-item label="商品标题" prop="title">
+              <el-input v-model="product.title" disabled></el-input>
+            </el-form-item>
+          </el-form>
+          <el-form :model="product"  label-width="100px" class="demo-ruleForm">
+            <el-form-item label="商品分类" prop="name">
+              <el-cascader
+                :props="defaultParams"
+                :options="options"
+                v-model="ProductCategoryReq.categoryIdList"
+                :clearable="true"
+                @change="handleChange" style="width: 100%">
+              </el-cascader>
+            </el-form-item>
+          </el-form>
+        </div>
+        <!--底部区域-->
+        <span slot="footer" class="dialog-footer">
+            <el-button @click="categoryVisible = false">取 消</el-button>
+            <el-button type="primary" @click="productCategory">确 定</el-button>
+          </span>
+
+      </el-dialog>
+
+      <!--修改商品信息弹出框-->
+      <el-dialog
+        title="添加新商品"
+        :visible.sync="updateProductDialogVisible"
+        width="30%"
+        :before-close="handleClose" ref="addProductRef">
+        <!--内容主体区-->
+        <span>
+          <el-form :model="addProductFrom" :rules="addProductRules" ref="addProductRef" label-width="100px" class="demo-ruleForm">
+            <el-form-item label="商品名" prop="title">
+              <el-input v-model="addProductFrom.title"></el-input>
+            </el-form-item>
+          </el-form>
+
+          <el-form :model="addProductFrom" :rules="addProductRules" ref="addProductRef" label-width="100px" class="demo-ruleForm">
+            <el-form-item label="商品简介" prop="detail">
+              <el-input v-model="addProductFrom.detail"></el-input>
+            </el-form-item>
+          </el-form>
+
+          <el-form :model="addProductFrom" :rules="addProductRules" ref="addProductRef" label-width="100px" class="demo-ruleForm">
+            <el-form-item label="商品原价" prop="amount">
+              <el-input v-model="addProductFrom.amount"></el-input>
+            </el-form-item>
+          </el-form>
+
+          <el-form :model="addProductFrom" :rules="addProductRules" ref="addProductRef" label-width="100px" class="demo-ruleForm">
+            <el-form-item label="商品现价" prop="oldAmount">
+              <el-input v-model="addProductFrom.oldAmount"></el-input>
+            </el-form-item>
+          </el-form>
+
+          <el-form :model="addProductFrom" :rules="addProductRules" ref="addProductRef" label-width="100px" class="demo-ruleForm">
+            <el-form-item label="商品库存" prop="stock">
+              <el-input v-model="addProductFrom.stock"></el-input>
+            </el-form-item>
+          </el-form>
+        </span>
+        <!--底部区域-->
+        <span slot="footer" class="dialog-footer">
+            <el-button @click="updateProductDialogVisible = false">取 消</el-button>
+            <el-button type="primary" @click="updateProduct">确 定</el-button>
+          </span>
+      </el-dialog>
     </el-card>
   </div>
 </template>
@@ -196,7 +278,8 @@
 export default {
   data(){
     return{
-      /* productList:{
+      product:{
+        id:'',
         title:'',
         coverImg:'',
         detail:'',
@@ -206,9 +289,10 @@ export default {
         oldAmount:0,
         amount:0,
         stock:0
+      },
 
-      }, */
       productList:[],
+      productIdList:[],
       total: 0,
       queryInfo: {
         pageNum: 1,
@@ -216,6 +300,7 @@ export default {
         likeName: ''
       },
       addDialogVisible : false,
+      categoryVisible : false,
       addProductFrom :{
         title : '',
         coverImg : '',
@@ -234,7 +319,18 @@ export default {
 
       },
       fileList: [{name: '', url: ''}],
-
+      options:[],
+      categoryIdList: [],
+      defaultParams: {
+        label: 'primaryClassification',
+        value: 'primaryClassificationId',
+        children: 'childProductCategory'
+      },
+      ProductCategoryReq:{
+        productId:'',
+        categoryIdList : []
+      },
+      updateProductDialogVisible : false,
     }
   },
   created () {
@@ -291,19 +387,127 @@ export default {
       })
     },
     // 监听添加用户对话框的关闭事件
-    addDialogClosed(){
-      this.$refs.addProductRef.resetFields()
-    },
     handleClose(){
       this.$confirm('确认关闭？')
         .then(_ => {
-          this.$refs.addProductRef.resetFields()
+          //this.$refs.addProductRef.resetFields()
+          this.$refs['addProductRef'].resetFields()
           this.addDialogVisible = false
           done();
         })
         .catch(_ => {});
+    },
+    //修改分类
+    showEditDialog(row){
+      this.getCategoryList()
+      this.product.title = row.title
+      this.ProductCategoryReq.productId = row.id
+      this.categoryVisible = true
+
+    },
+    categoryVisibleClose(){
+      this.$confirm('确认关闭？')
+        .then(_ => {
+          //this.$refs.addProductRef.resetFields()
+          this.categoryVisible = false
+          done();
+        })
+        .catch(_ => {});
+    },
+    getCategoryList(){
+      this.$axios.get("/api/admin/productCategory/category-list").then(res=>{
+        if (res.data.code !== 0) return this.$message.error(res.data.msg)
+        this.options = res.data.data
+        //console.log(this.categoryList)
+      })
+    },
+    handleChange(){
+      //console.log(this.selectedOptions)
+    },
+    productCategory(){
+      this.$axios.post("/api/admin/productCategory/category",this.ProductCategoryReq).then(res=>{
+        if (res.data.code !== 0) return this.$message.error(res.data.msg)
+        this.$message.success(res.data.data)
+        this.getProductList()
+        this.categoryVisible = false
+      })
+    },
+    handleSelectionChange(val) {
+      this.multipleSelection = val;
+      //console.log(val)
+      for (let i in val) { // i为索引值
+        this.productIdList[i] = val[i].id
+      }
+    },
+    notShelfProduct(){
+      this.$axios.post("/api/admin/product/out-shelf",this.productIdList).then(res=>{
+        if (res.data.code !== 0) return this.$message.error(res.data.msg)
+        this.$message.success("成功下架" +res.data.data +"个商品")
+        this.getProductList()
+      })
+    },
+    onShelfProduct(){
+      this.$axios.post("/api/admin/product/on-shelf",this.productIdList).then(res=>{
+        if (res.data.code !== 0) return this.$message.error(res.data.msg)
+        this.$message.success("成功上架" +res.data.data +"个商品")
+        this.getProductList()
+      })
+    },
+    deleteProduct(row){
+      this.$confirm('此操作将删除该商品, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        //启用
+        this.$axios.post("/api/admin/product/delete/"+ row.id).then(res=>{
+          if (res.data.code === 0){
+            //刷新页面
+            this.getProductList()
+            return this.$message.success("成功删除" + res.data.data + "条数据")
+          }else {
+            return this.$message.error(res.data.msg)
+          }
+        })
+        this.$message({
+          type: 'success',
+          message: '删除成功!'
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        });
+      });
+    },
+    handleClick(row){
+      //数据赋值
+      this.addProductFrom.id = row.id
+      this.addProductFrom.title = row.title
+      this.addProductFrom.amount = row.amount
+      this.addProductFrom.detail = row.detail
+      this.addProductFrom.oldAmount = row.oldAmount
+      this.addProductFrom.stock = row.stock
+      //激活弹出框
+      this.updateProductDialogVisible = true;
+    },
+
+    updateProduct(){
+      this.$axios.post("/api/admin/product/update/" + this.addProductFrom.id,this.addProductFrom
+      ).then(res=>{
+        if (res.data.code === 0){
+          //刷新页面
+          this.getProductList()
+          this.updateProductDialogVisible = false;
+          return this.$message.success("成功更新" + res.data.data + "条数据")
+        }else {
+          return this.$message.error(res.data.msg)
+        }
+      })
     }
-  }
+
+  },
+
 }
 </script>
 

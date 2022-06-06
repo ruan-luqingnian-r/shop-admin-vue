@@ -1,7 +1,15 @@
 <template>
   <div>
-    <h3>Weclome</h3>
-    <h4>后台管理首页</h4>
+
+    <el-card class="box-card">
+      <div slot="header" class="clearfix">
+        <span>后台管理首页</span>
+      </div>
+      <div>
+        在线商城系统
+      </div>
+
+    </el-card>
   </div>
 </template>
 

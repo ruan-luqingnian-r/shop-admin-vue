@@ -7,6 +7,7 @@ import UserList from '@/components/user/UserList'
 import BannnerList from '@/components/front/BannnerList'
 import ProductCategoryList from '@/components/product/ProductCategoryList'
 import ProductList from '@/components/product/ProductList'
+import HotProductList from '@/components/front/HotProductList'
 
 
 Vue.use(VueRouter)
@@ -22,7 +23,8 @@ const routes = [
       {path: "/user",component: UserList},
       {path: "/front/banner",component: BannnerList},
       {path: "/goods/category",component: ProductCategoryList},
-      {path: "/goods/product",component: ProductList}
+      {path: "/goods/product",component: ProductList},
+      {path: "/front/hot",component: HotProductList}
     ]
   }
 ]
