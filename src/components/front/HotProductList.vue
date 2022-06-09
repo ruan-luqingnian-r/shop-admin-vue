@@ -17,7 +17,7 @@
           </el-tooltip>
 
           <el-tooltip  class="item" effect="dark" content="删除热销商品" placement="bottom" :enterable="false">
-            <el-button type="danger" circle icon="el-icon-delete"></el-button>
+            <el-button type="danger" circle icon="el-icon-delete" @click="deleteHotProduct"></el-button>
           </el-tooltip>
 
         </el-col>
@@ -126,44 +126,37 @@
         title="热门商品"
         :visible.sync="addDialogVisible"
         width="30%"
-        :before-close="handleClose"
-        ref="productRef">
+        :before-close="handleClose">
         <!--内容主体区-->
         <span>
-         <el-form :model="product" :rules="productRules" ref="productRef" label-width="100px" class="demo-ruleForm">
+
+          <el-form :model="product" :rules="productRules" ref="productRef" label-width="100px" class="demo-ruleForm">
+
             <el-form-item label="商品名" prop="title">
               <template>
-                <el-select v-model="title" filterable placeholder="请输入商品名" :clearable="true" @change="handleChange(title)">
+                <el-select v-model="title" filterable placeholder="请输入商品名" :clearable="true" @change="handleChange(title)" @clear="close">
                   <el-option
                     v-for="item in options"
                     :key="item.id"
                     :label="item.title"
-                    :value="item.id" @clear="close">
+                    :value="item.id">
                   </el-option>
                  </el-select>
               </template>
             </el-form-item>
-          </el-form>
 
-          <el-form :model="product" :rules="productRules" ref="productRef" label-width="100px" class="demo-ruleForm">
             <el-form-item label="商品简介" prop="detail">
               <el-input v-model="product.detail" disabled></el-input>
             </el-form-item>
-          </el-form>
 
-          <el-form :model="product" :rules="productRules" ref="productRef" label-width="100px" class="demo-ruleForm">
             <el-form-item label="商品原价" prop="amount">
               <el-input v-model="product.amount" disabled></el-input>
             </el-form-item>
-          </el-form>
 
-          <el-form :model="product" :rules="productRules" ref="productRef" label-width="100px" class="demo-ruleForm">
             <el-form-item label="商品现价" prop="oldAmount">
               <el-input v-model="product.oldAmount" disabled></el-input>
             </el-form-item>
-          </el-form>
 
-          <el-form :model="product" :rules="productRules" ref="productRef" label-width="100px" class="demo-ruleForm">
             <el-form-item label="商品库存" prop="stock">
               <el-input v-model="product.stock" disabled></el-input>
             </el-form-item>
@@ -172,7 +165,7 @@
         <!--底部区域-->
         <span slot="footer" class="dialog-footer">
             <el-button @click="addDialogVisible = false">取 消</el-button>
-            <el-button type="primary">设为热销商品</el-button>
+            <el-button type="primary" @click="setTopSeller">设为热销商品</el-button>
           </span>
       </el-dialog>
 
@@ -216,6 +209,8 @@ export default {
       },
       options: [],
       title: '',
+      state:0,
+      rows:0
 
     }
   },
@@ -275,8 +270,31 @@ export default {
         this.productIdList[i] = val[i].id
       }
     },
+    setTopSeller(){
+      this.$axios.post('/api/admin/product/updateState/'+this.product.id+'?state=0').then(res=>{
+        if (res.data.code !== 0) return this.$message.error(res.data.msg)
+        this.$message.success("成功修改" + res.data.data + "个数据")
+        this.getHotProductList()
+        this.addDialogVisible = false
+        this.$refs.productRef.resetFields()
+      })
+    },
     close(){
-      this.product = null;
+      this.product =[]
+    },
+    deleteHotProduct(){
+
+      for (let i in this.productIdList){
+        this.$axios.post('/api/admin/product/updateState/'+this.productIdList[i]+'?state=1').then(res=>{
+          if (res.data.code !== 0) return this.$message.error(res.data.msg)
+        })
+        this.rows++
+      }
+      this.$message.success("成功修改" + this.rows + "个数据")
+      this.getHotProductList()
+      this.addDialogVisible = false
+      this.$refs.productRef.resetFields()
+
     }
 
   }

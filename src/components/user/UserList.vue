@@ -119,34 +119,29 @@
             <el-form-item label="用户名" prop="name">
               <el-input v-model="addFrom.name"></el-input>
             </el-form-item>
-          </el-form>
-          <el-form :model="addFrom" :rules="addFromRules" ref="addFromRef" label-width="100px" class="demo-ruleForm">
+
             <el-form-item label="账号" prop="mail">
               <el-input v-model="addFrom.mail"></el-input>
             </el-form-item>
-          </el-form>
 
-
-          <el-form :model="addFrom" :rules="addFromRules" ref="addFromRef" label-width="100px" class="demo-ruleForm">
             <el-form-item label="性别" prop="sex">
               <el-radio-group v-model="addFrom.sex">
                <el-radio label="1">男</el-radio>
                <el-radio label="0">女</el-radio>
              </el-radio-group>
           </el-form-item>
-          </el-form>
 
-          <el-form :model="addFrom" :rules="addFromRules" ref="addFromRef" label-width="100px" class="demo-ruleForm">
             <el-form-item label="密码" prop="pwd" >
               <el-input type="password" v-model="addFrom.pwd" autocomplete="off"></el-input>
             </el-form-item>
-          </el-form>
 
-          <el-form :model="addFrom" :rules="addFromRules" ref="addFromRef" label-width="100px" class="demo-ruleForm">
             <el-form-item label="再次确认" prop="pwdAgain">
               <el-input type="password" v-model="addFrom.pwdAgain" autocomplete="off"></el-input>
             </el-form-item>
           </el-form>
+
+
+
 
         </span>
           <!--底部区域-->
@@ -165,8 +160,7 @@
           <el-form-item label="用户名" prop="name">
             <el-input v-model="pointFrom.name" disabled></el-input>
           </el-form-item>
-        </el-form>
-        <el-form :model="pointFrom" :rules="userPointsRules" ref="userPointsRef" label-width="100px" class="demo-ruleForm">
+
           <el-form-item label="积分变动" prop="point">
             <el-input v-model="pointFrom.point"></el-input>
           </el-form-item>

@@ -87,27 +87,19 @@
                 <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过40m</div>
               </el-upload>
             </el-form-item>
-          </el-form>
 
-          <el-form :model="addBanner" :rules="addBannerRules" ref="addBannerRef" label-width="100px" class="demo-ruleForm">
             <el-form-item label="图片地址" prop="img">
               <el-input v-model="addBanner.img"></el-input>
             </el-form-item>
-          </el-form>
 
-
-          <el-form :model="addBanner" :rules="addBannerRules" ref="addBannerRef" label-width="100px" class="demo-ruleForm">
             <el-form-item label="跳转地址" prop="url">
               <el-input v-model="addBanner.url"></el-input>
             </el-form-item>
           </el-form>
 
-
-          <el-form :model="addBanner" :rules="addBannerRules" ref="addBannerRef" label-width="100px" class="demo-ruleForm">
-            <el-form-item label="权重" prop="weight">
+          <el-form-item label="权重" prop="weight">
               <el-input v-model="addBanner.weight"></el-input>
           </el-form-item>
-          </el-form>
 
         </span>
         <!--底部区域-->

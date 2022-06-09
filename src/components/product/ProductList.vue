@@ -142,8 +142,7 @@
             <el-form-item label="商品名" prop="title">
               <el-input v-model="addProductFrom.title"></el-input>
             </el-form-item>
-          </el-form>
-          <el-form :model="addProductFrom" :rules="addProductRules" ref="addProductRef" label-width="100px" class="demo-ruleForm">
+
             <el-form-item label="封面图" prop="coverImg">
               <el-upload
                 class="upload-demo"
@@ -160,30 +159,24 @@
                 <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过40m</div>
               </el-upload>
             </el-form-item>
-          </el-form>
 
-          <el-form :model="addProductFrom" :rules="addProductRules" ref="addProductRef" label-width="100px" class="demo-ruleForm">
-            <el-form-item label="商品简介" prop="detail">
+            <el-form-item label="详细说明" prop="detail">
               <el-input v-model="addProductFrom.detail"></el-input>
             </el-form-item>
-          </el-form>
 
-          <el-form :model="addProductFrom" :rules="addProductRules" ref="addProductRef" label-width="100px" class="demo-ruleForm">
             <el-form-item label="商品原价" prop="amount">
               <el-input v-model="addProductFrom.amount"></el-input>
             </el-form-item>
-          </el-form>
 
-          <el-form :model="addProductFrom" :rules="addProductRules" ref="addProductRef" label-width="100px" class="demo-ruleForm">
             <el-form-item label="商品现价" prop="oldAmount">
               <el-input v-model="addProductFrom.oldAmount"></el-input>
             </el-form-item>
-          </el-form>
 
-          <el-form :model="addProductFrom" :rules="addProductRules" ref="addProductRef" label-width="100px" class="demo-ruleForm">
             <el-form-item label="商品库存" prop="stock">
               <el-input v-model="addProductFrom.stock"></el-input>
             </el-form-item>
+
+
           </el-form>
         </span>
         <!--底部区域-->
@@ -238,27 +231,19 @@
             <el-form-item label="商品名" prop="title">
               <el-input v-model="addProductFrom.title"></el-input>
             </el-form-item>
-          </el-form>
 
-          <el-form :model="addProductFrom" :rules="addProductRules" ref="addProductRef" label-width="100px" class="demo-ruleForm">
             <el-form-item label="商品简介" prop="detail">
               <el-input v-model="addProductFrom.detail"></el-input>
             </el-form-item>
-          </el-form>
 
-          <el-form :model="addProductFrom" :rules="addProductRules" ref="addProductRef" label-width="100px" class="demo-ruleForm">
             <el-form-item label="商品原价" prop="amount">
               <el-input v-model="addProductFrom.amount"></el-input>
             </el-form-item>
-          </el-form>
 
-          <el-form :model="addProductFrom" :rules="addProductRules" ref="addProductRef" label-width="100px" class="demo-ruleForm">
             <el-form-item label="商品现价" prop="oldAmount">
               <el-input v-model="addProductFrom.oldAmount"></el-input>
             </el-form-item>
-          </el-form>
 
-          <el-form :model="addProductFrom" :rules="addProductRules" ref="addProductRef" label-width="100px" class="demo-ruleForm">
             <el-form-item label="商品库存" prop="stock">
               <el-input v-model="addProductFrom.stock"></el-input>
             </el-form-item>
@@ -316,9 +301,10 @@ export default {
         oldAmount:[{ required: true, message: '请输入商品价格', trigger: 'blur' }],
         amount:[{ required: true, message: '请输入商品优惠价', trigger: 'blur' }],
         stock:[{ required: true, message: '请输入商品库存', trigger: 'blur' }],
+        img:[{ required: true, message: '请上传商品图', trigger: 'blur' }],
 
       },
-      fileList: [{name: '', url: ''}],
+      fileList: [],
       options:[],
       categoryIdList: [],
       defaultParams: {
@@ -382,6 +368,7 @@ export default {
           if (res.data.code !== 0) return this.$message.error(res.data.msg)
           this.$message.success("添加商品成功")
           this.getProductList()
+          this.$refs.addProductRef.resetFields()
           this.addDialogVisible = false
         })
       })
@@ -391,7 +378,7 @@ export default {
       this.$confirm('确认关闭？')
         .then(_ => {
           //this.$refs.addProductRef.resetFields()
-          this.$refs['addProductRef'].resetFields()
+          this.$refs.addProductRef.resetFields()
           this.addDialogVisible = false
           done();
         })
@@ -408,7 +395,7 @@ export default {
     categoryVisibleClose(){
       this.$confirm('确认关闭？')
         .then(_ => {
-          //this.$refs.addProductRef.resetFields()
+          this.$refs.addProductRef.resetFields()
           this.categoryVisible = false
           done();
         })
